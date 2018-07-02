@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
+import { HubConnection, HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +16,10 @@ export class AppComponent {
 
     this.msgs = [];
 
-    this.connection = new HubConnectionBuilder().withUrl('http://10.200.16.23:55614/event').build();
+    this.connection = new HubConnectionBuilder()
+      .withUrl('http://10.200.16.23:55614/event')
+      .configureLogging(LogLevel.Trace)
+      .build();
     this.connection.serverTimeoutInMilliseconds = 3000;
 
     this.connection.onclose(() => {
@@ -30,6 +33,11 @@ export class AppComponent {
       .then(() => {
 
         this.msgs.push('Connection Established');
+
+        this.connection.on('event', (data) => {
+
+          this.msgs.push(data);
+        });
       })
       .catch(() => {
 
